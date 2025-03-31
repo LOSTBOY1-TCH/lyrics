@@ -1,42 +1,32 @@
+// server.js
+
 const express = require('express');
-const cors = require('cors');
 const axios = require('axios');
-require('dotenv').config(); // Load environment variables from .env file
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
-app.use(express.json());
 
-// Route for fetching lyrics
+// Define the /api/lyrics endpoint
 app.get('/api/lyrics', async (req, res) => {
     const { artist, title, clientApiKey } = req.query;
 
-    // Validate required parameters
+    // Validate input
     if (!artist || !title || !clientApiKey) {
-        return res.status(400).json({ error: 'Artist, title, and client API key are required' });
-    }
-
-    // Here you can validate the client API key if needed
-    // For example, you could check if it matches a known value
-    if (clientApiKey !== process.env.CLIENT_API_KEY) {
-        return res.status(403).json({ error: 'Invalid client API key' });
+        return res.status(400).json({ error: 'Missing required parameters' });
     }
 
     try {
-        const response = await axios.get(`https://api.lyrics.ovh/v1/${artist}/${title}`, {
-            headers: {
-                'Authorization': `Bearer ${process.env.LYRICS_API_KEY}` // Use your lyrics API key here
-            }
-        });
+        // Replace with your actual lyrics API URL and logic
+        const response = await axios.get(`https://api.lyrics.ovh/v1/${artist}/${title}`);
+        
+        // Send the lyrics back to the client
         res.json(response.data);
     } catch (error) {
         console.error(error);
-        if (error.response && error.response.status === 404) {
-            return res.status(404).json({ error: 'Lyrics not found' });
-        }
         res.status(500).json({ error: 'An error occurred while fetching lyrics' });
     }
 });
